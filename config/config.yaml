@@ -131,25 +131,57 @@ rss:
       name: "财经 - 财联社电报"
       url: "https://rsshub.rssforever.com/cls/telegraph"
 
-    - id: "wallstreetcn-hot"
-      name: "金融 - 华尔街见闻最热"
-      url: "https://rsshub.rssforever.com/wallstreetcn/hot"
+    - id: "jiemian"
+      name: "财经 - 界面新闻"
+      url: "https://feedx.net/rss/jiemian.xml"
+
+    - id: "wscn-live"
+      name: "金融 - 华尔街见闻快讯"
+      url: "https://rsshub.rssforever.com/wallstreetcn/live"
+
+    - id: "tmtpost"
+      name: "金融 - 钛媒体"
+      url: "https://www.tmtpost.com/rss"
 
     - id: "36kr-newsflashes"
       name: "科技 - 36氪快讯"
       url: "https://rsshub.rssforever.com/36kr/newsflashes"
 
+    - id: "sspai"
+      name: "科技 - 少数派"
+      url: "https://sspai.com/feed"
+
     - id: "leiphone"
       name: "AI - 雷峰网"
       url: "https://www.leiphone.com/feed"
 
-    - id: "thepaper"
-      name: "时政 - 澎湃新闻"
-      url: "https://feedx.net/rss/thepaper.xml"
+    - id: "infoq"
+      name: "AI - InfoQ中国"
+      url: "https://www.infoq.cn/feed"
+
+    - id: "thepaper-featured"
+      name: "时政 - 澎湃头条"
+      url: "https://rsshub.rssforever.com/thepaper/featured"
+
+    - id: "zaobao"
+      name: "时政 - 联合早报"
+      url: "https://feedx.net/rss/zaobao.xml"
 
     - id: "dongqiudi"
-      name: "体育 - 懂球帝头条"
+      name: "体育 - 懂球帝头条（足球）"
       url: "https://rsshub.rssforever.com/dongqiudi/top_news"
+      max_age_days: 0
+      max_items: 7
+
+    - id: "zhibo8-other"
+      name: "体育 - 直播吧综合"
+      url: "https://rsshub.rssforever.com/zhibo8/more/other"
+      max_items: 7
+
+    - id: "hupu-nba"
+      name: "体育 - 虎扑NBA"
+      url: "https://rsshub.rssforever.com/hupu/nba"
+      max_items: 7
 # ===============================================================
 # 4. 报告模式
 # ===============================================================
@@ -247,8 +279,8 @@ display:
   # 推送展示由 regions.standalone 控制，AI 分析由 ai_analysis.include_standalone 控制
   standalone:
     platforms: []     # 热榜平台 ID 列表（如 ["zhihu", "weibo"]）
-    rss_feeds: ["cls-telegraph", "wallstreetcn-hot", "36kr-newsflashes", "leiphone", "thepaper", "dongqiudi"]          # RSS 源 ID 列表
-    max_items: 20                                # 每个源最多展示条数（0=不限制）
+    rss_feeds: ["cls-telegraph", "jiemian", "wscn-live", "tmtpost", "36kr-newsflashes", "sspai", "leiphone", "infoq", "thepaper-featured", "zaobao", "dongqiudi", "zhibo8-other", "hupu-nba"]  # RSS 源 ID 列表
+    max_items: 10                                # 每个源最多展示条数（0=不限制）
 
 
 # ===============================================================
