@@ -35,7 +35,9 @@ on:
     #   "15 * * * *"     → 每小时第15分钟 / minute 15 every hour
     #   "30 0-14 * * *"  → 北京时间 8:00-22:00 每小时第30分钟 / Beijing 8am-10pm
     #
-    - cron: "33 * * * *"
+    # 工作日 08:10（00:10 UTC）/ 周末及法定节假日 10:00（02:00 UTC）
+    - cron: "10 0 * * *"
+    - cron: "0 2 * * *"
 
   workflow_dispatch:
 
@@ -111,22 +113,68 @@ jobs:
       #     sleep ${DELAY}s
       #     echo "▶️  Delay finished. Starting crawler..."
 
+      # --------------------------------------------------------------------------------
+      # ⏰ 推送时间判断：工作日 08:10 / 周末及法定节假日 10:00（每天仅推送一次）
+      #    手动运行时（workflow_dispatch）始终执行，方便测试
+      # --------------------------------------------------------------------------------
+      - name: Push time check
+        id: push_check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "✅ 手动运行，直接执行"
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          BJ_DATE=$(TZ=Asia/Shanghai date +%F)
+          BJ_HOUR=$(TZ=Asia/Shanghai date +%H)
+          BJ_DOW=$(TZ=Asia/Shanghai date +%u)
+          YEAR=$(TZ=Asia/Shanghai date +%Y)
+
+          IS_OFF=""
+          HOLIDAY_JSON=$(curl -s --max-time 15 "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/${YEAR}.json" || true)
+          if [ -n "$HOLIDAY_JSON" ]; then
+            IS_OFF=$(printf '%s' "$HOLIDAY_JSON" | jq -r --arg d "$BJ_DATE" '.days[]? | select(.date == $d) | .isOffDay' 2>/dev/null || true)
+          fi
+
+          if [ "$IS_OFF" = "true" ]; then
+            PUSH_HOUR=10
+            REASON="法定节假日"
+          elif [ "$IS_OFF" = "false" ]; then
+            PUSH_HOUR=8
+            REASON="调休工作日"
+          elif [ "$BJ_DOW" -ge 6 ]; then
+            PUSH_HOUR=10
+            REASON="周末"
+          else
+            PUSH_HOUR=8
+            REASON="工作日"
+          fi
+
+          echo "📅 $BJ_DATE（$REASON），今天推送时间：${PUSH_HOUR}:00（北京时间）"
+          if [ "$BJ_HOUR" = "$PUSH_HOUR" ]; then
+            echo "✅ 当前时段匹配，继续执行"
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "⏭️ 当前时段（${BJ_HOUR}时）不推送，跳过本次运行"
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Set up Python
-        if: success()
+        if: success() && steps.push_check.outputs.should_run == 'true'
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install uv
-        if: success()
+        if: success() && steps.push_check.outputs.should_run == 'true'
         uses: astral-sh/setup-uv@v7
 
       - name: Install dependencies
-        if: success()
+        if: success() && steps.push_check.outputs.should_run == 'true'
         run: uv sync --frozen --no-dev
 
       - name: Verify required files
-        if: success()
+        if: success() && steps.push_check.outputs.should_run == 'true'
         run: |
           if [ ! -f config/config.yaml ]; then
             echo "Error: Config missing"
@@ -134,7 +182,7 @@ jobs:
           fi
 
       - name: Run crawler
-        if: success()
+        if: success() && steps.push_check.outputs.should_run == 'true'
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -180,7 +228,7 @@ jobs:
       # 配置教程详见 README「自动部署到 Cloudflare Pages」章节。
       # --------------------------------------------------------------------------------
       - name: Check Cloudflare config
-        if: success()
+        if: success() && steps.push_check.outputs.should_run == 'true'
         id: cf_check
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -196,7 +244,7 @@ jobs:
           fi
 
       - name: Prepare Cloudflare Pages assets
-        if: success() && steps.cf_check.outputs.enabled == 'true'
+        if: success() && steps.push_check.outputs.should_run == 'true' && steps.cf_check.outputs.enabled == 'true'
         run: |
           if [ ! -f index.html ]; then
             echo "❌ 未找到 index.html，请确认爬虫已生成网页报告"
@@ -207,7 +255,7 @@ jobs:
           cp index.html cloudflare_dist/index.html
 
       - name: Deploy to Cloudflare Pages
-        if: success() && steps.cf_check.outputs.enabled == 'true'
+        if: success() && steps.push_check.outputs.should_run == 'true' && steps.cf_check.outputs.enabled == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
