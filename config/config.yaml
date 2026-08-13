@@ -118,7 +118,7 @@ rss:
   freshness_filter:
     enabled: true                     # 是否启用新鲜度过滤（true=启用, false=关闭）
 
-    max_age_days: 1                   # 最大文章年龄（天）
+    max_age_days: 2                   # 最大文章年龄（天）
                                       # - 正整数：只推送 N 天内的文章
                                       # - 0：禁用过滤，推送所有文章
 
@@ -127,44 +127,29 @@ rss:
   # - 正整数：覆盖全局设置，只推送此天数内的文章
   # - 0：禁用此频道的新鲜度过滤，推送所有文章
   feeds:
-    - id: "hacker-news"
-      name: "Hacker News"
-      url: "https://hnrss.org/frontpage"
+    - id: "cls-telegraph"
+      name: "财经 - 财联社电报"
+      url: "https://rsshub.rssforever.com/cls/telegraph"
 
-    - id: "ruanyifeng"
-      name: "阮一峰的网络日志"
-      url: "http://www.ruanyifeng.com/blog/atom.xml"
-      enabled: false                  # 禁用
-      # max_age_days: 3               # 示例：推送 3 天内的文章（更新较慢的博客）
-     
-    - id: "yahoo-finance"
-      name: "雅虎财经"
-      url: "https://finance.yahoo.com/news/rssindex"
+    - id: "wallstreetcn-hot"
+      name: "金融 - 华尔街见闻最热"
+      url: "https://rsshub.rssforever.com/wallstreetcn/hot"
 
+    - id: "36kr-newsflashes"
+      name: "科技 - 36氪快讯"
+      url: "https://rsshub.rssforever.com/36kr/newsflashes"
 
-    - id: "sspai"
-      name: "少数派"
-      url: "https://sspai.com/feed"
-
-    - id: "bbc-zh"
-      name: "BBC中文"
-      url: "https://feeds.bbci.co.uk/zhongwen/simp/rss.xml"
-
-    - id: "bbc-sport"
-      name: "BBC体育"
-      url: "https://feeds.bbci.co.uk/sport/rss.xml"
+    - id: "leiphone"
+      name: "AI - 雷峰网"
+      url: "https://www.leiphone.com/feed"
 
     - id: "thepaper"
-      name: "澎湃新闻"
+      name: "时政 - 澎湃新闻"
       url: "https://feedx.net/rss/thepaper.xml"
-    # 自定义源示例
-    # - id: "custom-feed"
-    #   name: "自定义源"
-    #   url: "https://example.com/feed.xml"
-    #   enabled: false
-    #   max_age_days: 0               # 示例：禁用过滤，推送所有文章
 
-
+    - id: "dongqiudi"
+      name: "体育 - 懂球帝头条"
+      url: "https://rsshub.rssforever.com/dongqiudi/top_news"
 # ===============================================================
 # 4. 报告模式
 # ===============================================================
@@ -262,8 +247,8 @@ display:
   # 推送展示由 regions.standalone 控制，AI 分析由 ai_analysis.include_standalone 控制
   standalone:
     platforms: []     # 热榜平台 ID 列表（如 ["zhihu", "weibo"]）
-    rss_feeds: ["yahoo-finance", "sspai", "bbc-zh", "bbc-sport", "thepaper"]                                # RSS 源 ID 列表（如 ["hacker-news"]）
-    max_items: 10                                # 每个源最多展示条数（0=不限制）
+    rss_feeds: ["cls-telegraph", "wallstreetcn-hot", "36kr-newsflashes", "leiphone", "thepaper", "dongqiudi"]          # RSS 源 ID 列表
+    max_items: 20                                # 每个源最多展示条数（0=不限制）
 
 
 # ===============================================================
